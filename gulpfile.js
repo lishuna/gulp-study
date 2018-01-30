@@ -5,8 +5,8 @@ const color = require('color'),
     concat = require('gulp-concat');
 const browserSync = require('browser-sync').create();
 const sass = require('gulp-sass');
+const config = require('./config');
 const reload = browserSync.reload;
-
 
 // 本地服务
 gulp.task('serve', ['js', 'sass', 'html'], () => {
@@ -17,14 +17,15 @@ gulp.task('serve', ['js', 'sass', 'html'], () => {
         }
     });
     // 监听变化
-    gulp.watch('./app/scss/*.scss', ['sass']);
-    gulp.watch('./app/js/*.js', ['js']);
-    gulp.watch('./app/*.html', ['html']).on('change', reload);
+    gulp.watch(config.style.src, ['sass']);
+    gulp.watch(config.script.src, ['js']);
+    gulp.watch(config.html.src, ['html']).on('change', reload);
 });
 gulp.task('sass', () => {
-    return gulp.src('./app/scss/*.scss')
+    return gulp.src(config.style.src)
+        .pipe(concat('core.css'))
         .pipe(sass())
-        .pipe(gulp.dest('./dist/css'))
+        .pipe(gulp.dest(config.style.dest))
         .pipe(reload({
             stream: true
         }));
@@ -32,8 +33,8 @@ gulp.task('sass', () => {
 gulp.task('js', () => {
     const src = './app/js/*.js';
     const dest = './dist/js';
-    return gulp.src(src)
-        .pipe(concat('bundle.js'))
+    return gulp.src(config.script.src)
+        .pipe(concat('core.js'))
         .pipe(minify({
             ext: {
                 src: '.js',
@@ -46,7 +47,7 @@ gulp.task('js', () => {
         }));
 });
 gulp.task('html', () => {
-    return gulp.src('./app/*.html')
+    return gulp.src(config.html.src)
         .pipe(gulp.dest('./dist'));
 });
 gulp.task('default', ['server']);
